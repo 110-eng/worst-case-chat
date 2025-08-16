@@ -24,9 +24,10 @@ export async function POST(req: NextRequest) {
     const model = process.env.OPENAI_MODEL || "gpt-4o-mini";
 
     // Chat Completions + JSONモード
-    const completion = await client.chat.completions.create({
+    type JsonMode = { type: "json_object" };
+      const completion = await client.chat.completions.create({
       model,
-      response_format: { type: "json_object" } as any, // 型の警告回避
+      response_format: { type: "json_object" } as JsonMode,
       messages: [
         { role: "system", content: "あなたは『最悪シナリオ生成器』です。指示されたJSONのみを返してください。" },
         { role: "user", content: prompt },
@@ -40,9 +41,9 @@ export async function POST(req: NextRequest) {
 
     const output = outputSchema.parse(parsed);
     return NextResponse.json(output, { status: 200 });
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error(e);
-    const message = e?.issues?.[0]?.message || e?.message || "generation_failed";
+    const message = e instanceof Error ? e.message : "generation_failed";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

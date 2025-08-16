@@ -38,8 +38,9 @@ export default function Page() {
       sessionStorage.setItem("lastResult", JSON.stringify(data));
       History.add(form, data);
       router.push("/result");
-    } catch (e: any) {
-      setErr(e.message ?? "生成に失敗しました");
+    } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e ?? "");
+        setErr(msg || "生成に失敗しました");
     } finally {
       setLoading(false);
     }
